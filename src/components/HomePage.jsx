@@ -1,17 +1,10 @@
 import {
-  Card,
-  Page,
-  Layout,
-  TextContainer,
-  Image,
-  Stack,
-  Link,
-  Heading,
+  Card, Heading, Image, Layout, Link, Page, Stack, TextContainer
 } from "@shopify/polaris";
-
 import trophyImgUrl from "../assets/home-trophy.png";
-
 import { ProductsCard } from "./ProductsCard";
+
+
 
 export function HomePage() {
   return (
@@ -29,7 +22,7 @@ export function HomePage() {
                 <TextContainer spacing="loose">
                   <Heading>Nice work on building a Shopify app 🎉</Heading>
                   <p>
-                    Your app is ready to explore! It contains everything you
+                    Your app is very ready to explore! It contains everything you
                     need to get started including the{" "}
                     <Link url="https://polaris.shopify.com/" external>
                       Polaris design system
