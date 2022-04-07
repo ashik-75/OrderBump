@@ -1,0 +1,36 @@
+.headMain {
+  display: flex;
+  gap: 10px;
+}
+
+.headMain img {
+  width: 100px;
+  height: 100px;
+}
+
+.settingsSubtitle {
+  margin-bottom: 10px;
+}
+
+.backupDiv {
+  margin: 10px 0px;
+}
+
+.backupParagraph {
+  margin-bottom: 10px;
+}
+
+.BumpTypeDiv {
+  margin: 10px 0px;
+}
+
+.BumpTypeDiv p {
+  margin-bottom: 10px;
+}
+
+.discount {
+  display: flex;
+  justify-items: center;
+  align-items: center;
+  gap: 20px;
+}

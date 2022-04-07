@@ -1,0 +1,9 @@
+table
+
+id    display  backup(boolean) bump_type(string)   discount(int_num)   discount_type
+
+
+
+today task
+
+## 
