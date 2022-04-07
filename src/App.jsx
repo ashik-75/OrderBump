@@ -11,10 +11,17 @@ import {
 import { authenticatedFetch } from "@shopify/app-bridge-utils";
 import { Redirect } from "@shopify/app-bridge/actions";
 import { AppProvider as PolarisProvider } from "@shopify/polaris";
-import translations from "@shopify/polaris/locales/en.json";
 import "@shopify/polaris/build/esm/styles.css";
-
-import { HomePage } from "./components/HomePage";
+import translations from "@shopify/polaris/locales/en.json";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import AutoBump from "./components/AutoBump";
+import Navbar from "./components/Navbar";
+import Play from "./components/Play";
+import Analytics from "./pages/Analytics";
+import BumpDetails from "./pages/BumpDetails";
+import ManualBump from "./pages/ManualBump";
+import Settings from "./pages/Settings";
+import Support from "./pages/Support";
 
 export default function App() {
   return (
@@ -26,9 +33,20 @@ export default function App() {
           forceRedirect: true,
         }}
       >
-        <MyProvider>
-          <HomePage />
-        </MyProvider>
+        <BrowserRouter>
+          <MyProvider>
+            <Navbar />
+            <Routes>
+              <Route path="/manual-bump" element={<ManualBump />} />
+              <Route path="/auto-bump" element={<AutoBump />} />
+              <Route path="/play" element={<Play />} />
+              <Route path="/analytics" element={<Analytics />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/support" element={<Support />} />
+              <Route path="/bumpDetails/:bumpId" element={<BumpDetails />} />
+            </Routes>
+          </MyProvider>
+        </BrowserRouter>
       </AppBridgeProvider>
     </PolarisProvider>
   );
