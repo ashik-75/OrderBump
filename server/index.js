@@ -6,6 +6,11 @@ import dotenv from "dotenv";
 import "dotenv/config";
 import express from "express";
 import { resolve } from "path";
+import {
+  deleteCallback,
+  loadCallback,
+  storeCallback,
+} from "./controllers/session.js";
 import applyAuthMiddleware from "./middleware/auth.js";
 import errorHandler from "./middleware/errorHandler.js";
 import verifyRequest from "./middleware/verify-request.js";
@@ -18,7 +23,11 @@ const TOP_LEVEL_OAUTH_COOKIE = "shopify_top_level_oauth";
 
 const PORT = parseInt(process.env.PORT || "8081", 10);
 const isTest = process.env.NODE_ENV === "test" || !!process.env.VITE_TEST_BUILD;
-
+const customSessionStorage = new Shopify.Session.CustomSessionStorage(
+  storeCallback,
+  loadCallback,
+  deleteCallback
+);
 Shopify.Context.initialize({
   API_KEY: process.env.SHOPIFY_API_KEY,
   API_SECRET_KEY: process.env.SHOPIFY_API_SECRET,
@@ -27,7 +36,7 @@ Shopify.Context.initialize({
   API_VERSION: ApiVersion.April22,
   IS_EMBEDDED_APP: true,
   // This should be replaced with your preferred storage strategy
-  SESSION_STORAGE: new Shopify.Session.MemorySessionStorage(),
+  SESSION_STORAGE: customSessionStorage,
 });
 
 // Storing the currently active shops in memory will force them to re-login when your server restarts. You should
