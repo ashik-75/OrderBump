@@ -1,6 +1,6 @@
 import { Banner, Card, Layout, Page } from "@shopify/polaris";
 import React from "react";
-import SingleBump from "../components/SingleBump";
+import BumpList from "../components/BumpList";
 
 const ManualBump = () => {
   return (
@@ -28,7 +28,7 @@ const ManualBump = () => {
         </Layout.Section>
 
         <Layout.Section>
-          <SingleBump />
+          <BumpList />
         </Layout.Section>
       </Layout>
     </Page>

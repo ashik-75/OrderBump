@@ -1,4 +1,5 @@
-import { ResourcePicker } from "@shopify/app-bridge-react";
+import { ResourcePicker, useAppBridge } from "@shopify/app-bridge-react";
+import { getSessionToken } from "@shopify/app-bridge-utils";
 import {
   Badge,
   Button,
@@ -16,14 +17,11 @@ import {
   TextStyle,
   Thumbnail,
 } from "@shopify/polaris";
+import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useQueryClient } from "react-query";
-import { useNavigate, useParams } from "react-router-dom";
-import BumpDetailsSkeleton from "../components/BumpDetailsSkeleton";
-import DeleteBumpModal from "../components/DeleteBumpModal";
+import { useMutation, useQueryClient } from "react-query";
+import { useNavigate } from "react-router-dom";
 import processOutput from "../customFunction/processOutput";
-import useGetSingleBump from "../hooks/useGetSingleBump";
-import useGetUpdateBump from "../hooks/useGetUpdateBump";
 
 const shape = {
   option1: "product_price",
@@ -44,7 +42,7 @@ function Condition({ bumpInfo, setBumpInfo, setSaveOption }) {
     { label: "Product Title", value: "product_title" },
     { label: "Product Type", value: "product_type" },
     { label: "Product Vendor", value: "product_vendor" },
-    { label: "Variant Sku", value: "variant_sku" },
+    { label: "Variant Sku", value: "product_sku" },
     { label: "Variant Title", value: "variant_title" },
     { label: "Variant Weight", value: "variant_weight" },
   ];
@@ -64,15 +62,8 @@ function Condition({ bumpInfo, setBumpInfo, setSaveOption }) {
         id === index ? { ...el, [field]: value } : el
       )
     );
-  };
-
-  useEffect(() => {
     setBumpInfo({ ...bumpInfo, conditions: allCondition });
-  }, [allCondition]);
-
-  useEffect(() => {
-    setAllCondition(bumpInfo?.conditions);
-  }, []);
+  };
 
   return (
     <FormLayout>
@@ -103,12 +94,23 @@ function Condition({ bumpInfo, setBumpInfo, setSaveOption }) {
   );
 }
 
-const BumpDetails = () => {
-  const navigate = useNavigate();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
+const addBumpToBackend = async ({ info, app }) => {
+  const sessionToken = await getSessionToken(app);
+
+  return axios.post("/api/bumps/create", info, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${sessionToken}`,
+    },
+  });
+};
+
+const AddBump = () => {
+  const app = useAppBridge();
   const queryClient = useQueryClient();
-  const bumpId = useParams()?.bumpId;
+  const { mutate, isSuccess, isLoading } = useMutation(addBumpToBackend);
+
+  const navigate = useNavigate();
   const [saveoption, setSaveOption] = useState(true);
   const [bumpInfo, setBumpInfo] = useState({
     postpurchase: false,
@@ -119,61 +121,37 @@ const BumpDetails = () => {
     conditions: [],
   });
 
-  // get single bumps by id
-  const { data, isError, isLoading, isSuccess } = useGetSingleBump(bumpId);
+  useEffect(() => {
+    if (isSuccess) {
+      navigate("/");
+      queryClient.invalidateQueries("allBumps");
+    }
+  }, [isSuccess]);
 
-  console.log({ data, isLoading, isSuccess });
-
-  // update mutation
-  const {
-    mutate: updateMutation,
-    isLoading: isUpdateLoading,
-    isSuccess: isUpdateSuccess,
-    data: updateData,
-  } = useGetUpdateBump();
-
-  const { postpurchase, prepurchase, title, content, product } = bumpInfo;
+  const { postpurchase, prepurchase, title, content, product, conditions } =
+    bumpInfo;
+  const [isOpen, setIsOpen] = useState(false);
 
   const handleChange = (value, field) => {
     setSaveOption(false);
     setBumpInfo({ ...bumpInfo, [field]: value });
   };
 
-  const handleUpdate = () => {
+  const handleAction = () => {
     const data = processOutput(bumpInfo);
-    updateMutation({ id: bumpId, info: data });
+    mutate({ info: data, app });
   };
-
-  useEffect(() => {
-    if (isSuccess && data?.data) {
-      setBumpInfo(data?.data);
-    }
-  }, [isLoading]);
-
-  useEffect(() => {
-    if (isUpdateSuccess) {
-      queryClient.invalidateQueries("allBumps");
-      setBumpInfo(updateData?.data);
-    }
-  }, [isUpdateSuccess]);
-
-  console.log({ bump: bumpInfo });
-
-  return isLoading || isUpdateLoading ? (
-    <BumpDetailsSkeleton />
-  ) : (
+  return (
     <Page
       // divider
       primaryAction={{
-        content: isUpdateLoading ? "Updating" : "Save",
+        content: isLoading ? "Save...." : "Save",
         disabled: saveoption,
-        onAction: handleUpdate,
+        onAction: handleAction,
       }}
-      title={bumpInfo?.title || bumpInfo?.product?.selection[0]?.title}
+      title="New Bump"
       breadcrumbs={[{ content: "Products", onAction: () => navigate("/") }]}
-      titleMetadata={
-        <Badge status="warning">{isLoading ? "Loading" : "complete"}</Badge>
-      }
+      titleMetadata={<Badge status="warning">Complete</Badge>}
       secondaryActions={[
         {
           content: "Enable",
@@ -225,7 +203,9 @@ const BumpDetails = () => {
                   <Stack.Item>
                     <Thumbnail
                       source={
-                        product?.selection[0]?.images[0]?.originalSrc || ""
+                        (product &&
+                          product?.selection[0]?.images[0]?.originalSrc) ||
+                        ""
                       }
                       alt="Black choker necklace"
                       size="large"
@@ -236,9 +216,7 @@ const BumpDetails = () => {
                     <Subheading>{product?.id}</Subheading>
                   </Stack.Item>
                   <Stack.Item>
-                    <Heading>
-                      ${product?.selection[0]?.variants[0]?.price}
-                    </Heading>
+                    <Heading>$3000</Heading>
                   </Stack.Item>
                 </Stack>
                 <br />
@@ -256,7 +234,9 @@ const BumpDetails = () => {
                 <br />
               </div>
             )}
-            <div style={{ display: "flex", gap: 10 }}>
+
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+              {/* {product && <ProductModal product={product} />} */}
               <Button onClick={() => setIsOpen(true)}>
                 {product ? "Change Product" : "Select Product "}
               </Button>
@@ -340,24 +320,16 @@ const BumpDetails = () => {
           </Card>
         </Layout.AnnotatedSection>
       </Layout>
-
-      <DeleteBumpModal
-        isModalOpen={isModalOpen}
-        setIsModalOpen={setIsModalOpen}
-        bumpId={bumpId}
-      />
-
       <PageActions
         primaryAction={{
-          content: isUpdateLoading ? "Updating" : "Save",
+          content: isLoading ? "Save ...." : "Save",
           disabled: saveoption,
-          onAction: handleUpdate,
+          onAction: handleAction,
         }}
         secondaryActions={[
           {
             content: "Delete",
             destructive: true,
-            onAction: () => setIsModalOpen(true),
           },
         ]}
       />
@@ -365,4 +337,4 @@ const BumpDetails = () => {
   );
 };
 
-export default BumpDetails;
+export default AddBump;

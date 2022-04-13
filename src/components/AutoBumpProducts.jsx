@@ -55,7 +55,7 @@ const FilteredProduct = ({ products, setProducts }) => {
   );
 };
 
-const AutoBumProducts = () => {
+const AutoBumpProducts = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [products, setProducts] = useState([]);
 
@@ -100,4 +100,4 @@ const AutoBumProducts = () => {
   );
 };
 
-export default AutoBumProducts;
+export default AutoBumpProducts;

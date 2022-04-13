@@ -1,12 +1,17 @@
 // @ts-check
-import { resolve } from "path";
-import express from "express";
+import { ApiVersion, Shopify } from "@shopify/shopify-api";
 import cookieParser from "cookie-parser";
-import { Shopify, ApiVersion } from "@shopify/shopify-api";
+import cors from "cors";
+import dotenv from "dotenv";
 import "dotenv/config";
-
+import express from "express";
+import { resolve } from "path";
 import applyAuthMiddleware from "./middleware/auth.js";
+import errorHandler from "./middleware/errorHandler.js";
 import verifyRequest from "./middleware/verify-request.js";
+import bumpRouter from "./routes/bumpRoutes.js";
+
+dotenv.config();
 
 const USE_ONLINE_TOKENS = true;
 const TOP_LEVEL_OAUTH_COOKIE = "shopify_top_level_oauth";
@@ -31,7 +36,7 @@ const ACTIVE_SHOPIFY_SHOPS = {};
 Shopify.Webhooks.Registry.addHandler("APP_UNINSTALLED", {
   path: "/webhooks",
   webhookHandler: async (topic, shop, body) => {
-    delete ACTIVE_SHOPIFY_SHOPS[shop]
+    delete ACTIVE_SHOPIFY_SHOPS[shop];
   },
 });
 
@@ -41,6 +46,9 @@ export async function createServer(
   isProd = process.env.NODE_ENV === "production"
 ) {
   const app = express();
+
+  app.use(cors());
+  app.use(express.json());
   app.set("top-level-oauth-cookie", TOP_LEVEL_OAUTH_COOKIE);
   app.set("active-shopify-shops", ACTIVE_SHOPIFY_SHOPS);
   app.set("use-online-tokens", USE_ONLINE_TOKENS);
@@ -48,6 +56,14 @@ export async function createServer(
   app.use(cookieParser(Shopify.Context.API_SECRET_KEY));
 
   applyAuthMiddleware(app);
+
+  // define all routes
+  app.get("/test", (req, res) => {
+    res.send("test backend");
+  });
+  app.use("/api/bumps", bumpRouter);
+
+  // end my route
 
   app.post("/webhooks", async (req, res) => {
     try {
@@ -145,6 +161,8 @@ export async function createServer(
         .send(fs.readFileSync(`${process.cwd()}/dist/client/index.html`));
     });
   }
+
+  app.use(errorHandler);
 
   return { app, vite };
 }

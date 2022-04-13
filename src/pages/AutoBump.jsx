@@ -1,25 +1,25 @@
 import { Layout, Page } from "@shopify/polaris";
 import React from "react";
-import AutoBumHead from "./AutoBumHead";
-import AutoBumpOffer from "./AutoBumpOffer";
-import AutoBumProducts from "./AutoBumProducts";
-import AutoBumSettings from "./AutoBumSettings";
+import AutoBumpHead from "../components/AutoBumpHead";
+import AutoBumpOffer from "../components/AutoBumpOffer";
+import AutoBumpProducts from "../components/AutoBumpProducts";
+import AutoBumpSettings from "../components/AutoBumpSettings";
 
 const AutoBump = () => {
   return (
     <Page>
       <Layout>
         <Layout.Section>
-          <AutoBumHead />
+          <AutoBumpHead />
         </Layout.Section>
         <Layout.Section>
-          <AutoBumSettings />
+          <AutoBumpSettings />
         </Layout.Section>
         <Layout.Section>
           <AutoBumpOffer />
         </Layout.Section>
         <Layout.Section>
-          <AutoBumProducts />
+          <AutoBumpProducts />
         </Layout.Section>
       </Layout>
     </Page>

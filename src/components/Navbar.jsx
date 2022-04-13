@@ -10,15 +10,17 @@ function Navbar() {
     setSelected(value);
 
     if (value === 0) {
-      navigate("/manual-bump");
+      navigate("/");
     } else if (value === 1) {
       navigate("/auto-bump");
     } else if (value === 2) {
       navigate("/analytics");
     } else if (value === 3) {
       navigate("settings");
-    } else {
+    } else if (value === 4) {
       navigate("support");
+    } else {
+      navigate("play");
     }
   };
 
@@ -48,6 +50,11 @@ function Navbar() {
       id: "prospects-5",
       content: "Support",
       panelID: "prospects-content-5",
+    },
+    {
+      id: "prospects-6",
+      content: "Play",
+      panelID: "prospects-content-6",
     },
   ];
 

@@ -13,15 +13,19 @@ import { Redirect } from "@shopify/app-bridge/actions";
 import { AppProvider as PolarisProvider } from "@shopify/polaris";
 import "@shopify/polaris/build/esm/styles.css";
 import translations from "@shopify/polaris/locales/en.json";
+import { QueryClient, QueryClientProvider } from "react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import AutoBump from "./components/AutoBump";
 import Navbar from "./components/Navbar";
-import Play from "./components/Play";
+import AddBump from "./pages/AddBump";
 import Analytics from "./pages/Analytics";
+import AutoBump from "./pages/AutoBump";
 import BumpDetails from "./pages/BumpDetails";
 import ManualBump from "./pages/ManualBump";
+import Play from "./pages/Play";
 import Settings from "./pages/Settings";
 import Support from "./pages/Support";
+
+const queryClient = new QueryClient();
 
 export default function App() {
   return (
@@ -33,20 +37,23 @@ export default function App() {
           forceRedirect: true,
         }}
       >
-        <BrowserRouter>
-          <MyProvider>
-            <Navbar />
-            <Routes>
-              <Route path="/manual-bump" element={<ManualBump />} />
-              <Route path="/auto-bump" element={<AutoBump />} />
-              <Route path="/play" element={<Play />} />
-              <Route path="/analytics" element={<Analytics />} />
-              <Route path="/settings" element={<Settings />} />
-              <Route path="/support" element={<Support />} />
-              <Route path="/bumpDetails/:bumpId" element={<BumpDetails />} />
-            </Routes>
-          </MyProvider>
-        </BrowserRouter>
+        <QueryClientProvider client={queryClient}>
+          <BrowserRouter>
+            <MyProvider>
+              <Navbar />
+              <Routes>
+                <Route path="/" element={<ManualBump />} />
+                <Route path="/auto-bump" element={<AutoBump />} />
+                <Route path="/analytics" element={<Analytics />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/support" element={<Support />} />
+                <Route path="/bumpDetails/:bumpId" element={<BumpDetails />} />
+                <Route path="/add-bump" element={<AddBump />} />
+                <Route path="/play" element={<Play />} />
+              </Routes>
+            </MyProvider>
+          </BrowserRouter>
+        </QueryClientProvider>
       </AppBridgeProvider>
     </PolarisProvider>
   );

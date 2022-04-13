@@ -2,7 +2,7 @@ import { Card } from "@shopify/polaris";
 import React from "react";
 import styles from "../styles/AutoBump.module.css";
 
-const AutoBumHead = () => {
+const AutoBumpHead = () => {
   return (
     <Card title="What are Auto Bumps?" sectioned>
       <div className={styles.headMain}>
@@ -23,4 +23,4 @@ const AutoBumHead = () => {
   );
 };
 
-export default AutoBumHead;
+export default AutoBumpHead;
