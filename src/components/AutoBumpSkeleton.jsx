@@ -8,11 +8,11 @@ import {
 } from "@shopify/polaris";
 import React from "react";
 
-const BumpDetailsSkeleton = () => {
+const AutoBumpSkeleton = () => {
   return (
     <SkeletonPage primaryAction>
       <Layout>
-        <Layout.Section secondary>
+        <Layout.Section>
           <Card sectioned>
             <SkeletonBodyText />
           </Card>
@@ -58,4 +58,4 @@ const BumpDetailsSkeleton = () => {
   );
 };
 
-export default BumpDetailsSkeleton;
+export default AutoBumpSkeleton;

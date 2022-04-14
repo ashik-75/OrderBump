@@ -346,6 +346,7 @@ const BumpDetails = () => {
         setIsModalOpen={setIsModalOpen}
         bumpId={bumpId}
       />
+      <br />
 
       <PageActions
         primaryAction={{

@@ -2,10 +2,20 @@ import { ResourcePicker } from "@shopify/app-bridge-react";
 import { Button, Card } from "@shopify/polaris";
 import React, { useState } from "react";
 
-const FilteredProduct = ({ products, setProducts }) => {
+const FilteredProduct = ({
+  excludeProducts,
+  settingsInfo,
+  setSettingsInfo,
+}) => {
   const handleRemove = (id) => {
-    const resultData = products.filter((dt, ind) => ind !== id);
-    setProducts(resultData);
+    const filteredData = excludeProducts?.filter((dt) => {
+      return dt?.id !== id;
+    });
+
+    setSettingsInfo({
+      ...settingsInfo,
+      excludeProducts: filteredData,
+    });
   };
   return (
     <Card sectioned>
@@ -15,7 +25,7 @@ const FilteredProduct = ({ products, setProducts }) => {
           gap: 20,
         }}
       >
-        {products?.map((dt, ind) => (
+        {excludeProducts?.map((dt) => (
           <div key={dt?.id}>
             <div
               style={{
@@ -42,7 +52,7 @@ const FilteredProduct = ({ products, setProducts }) => {
                   fontSize: 20,
                   cursor: "pointer",
                 }}
-                onClick={() => handleRemove(ind)}
+                onClick={() => handleRemove(dt?.id)}
               >
                 X
               </span>
@@ -55,18 +65,29 @@ const FilteredProduct = ({ products, setProducts }) => {
   );
 };
 
-const AutoBumpProducts = () => {
+const AutoBumpProducts = ({
+  setSettingsInfo,
+  settingsInfo,
+  setIsDisableBtn,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [products, setProducts] = useState([]);
+  const { excludeProducts } = settingsInfo;
 
+  const initialIds = excludeProducts?.map((prod) => ({ id: prod?.id }));
+
+  console.log({ initialIds });
   return (
     <Card title="Exclude Products" sectioned>
       <p style={{ marginBottom: "20px" }}>
         Products added here will be excluded from being shown by Auto Bumps.
       </p>
 
-      {products?.length > 0 && (
-        <FilteredProduct setProducts={setProducts} products={products} />
+      {excludeProducts?.length > 0 && (
+        <FilteredProduct
+          setSettingsInfo={setSettingsInfo}
+          excludeProducts={excludeProducts}
+          settingsInfo={settingsInfo}
+        />
       )}
 
       <br />
@@ -78,10 +99,15 @@ const AutoBumpProducts = () => {
         }}
       >
         <Button onClick={() => setIsOpen(true)}>
-          {products?.length > 0 ? "Edit Products" : "Select Product"}
+          {excludeProducts?.length > 0 ? "Edit Products" : "Select Product"}
         </Button>
-        {products?.length > 0 && (
-          <Button destructive={true} onClick={() => setProducts([])}>
+        {excludeProducts?.length > 0 && (
+          <Button
+            destructive={true}
+            onClick={() =>
+              setSettingsInfo({ ...settingsInfo, excludeProducts: [] })
+            }
+          >
             Remove All
           </Button>
         )}
@@ -91,9 +117,14 @@ const AutoBumpProducts = () => {
         open={isOpen}
         onCancel={() => setIsOpen(false)}
         selectMultiple={true}
+        initialSelectionIds={initialIds}
         onSelection={(product) => {
           setIsOpen(false);
-          setProducts(product?.selection);
+          setIsDisableBtn(false);
+          setSettingsInfo({
+            ...settingsInfo,
+            excludeProducts: product?.selection,
+          });
         }}
       />
     </Card>

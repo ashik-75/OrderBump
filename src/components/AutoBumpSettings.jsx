@@ -1,45 +1,27 @@
-import {
-  Button,
-  Card,
-  Checkbox,
-  ChoiceList,
-  TextField,
-} from "@shopify/polaris";
-import React, { useState } from "react";
+import { Card, Checkbox, ChoiceList, TextField } from "@shopify/polaris";
+import React from "react";
 import styles from "../styles/AutoBump.module.css";
 
-const AutoBumpSettings = () => {
-  const [settingsInfo, setSettingsInfo] = useState({
-    skipDisplay: ["50%"],
-    backup: false,
-    prePurchase: false,
-    postPurchase: false,
-    amount: 0,
-    discountType: ["percentage"],
-  });
-
+const AutoBumpSettings = ({
+  setIsDisableBtn,
+  settingsInfo,
+  setSettingsInfo,
+}) => {
   const {
     skipDisplay,
     backup,
     prePurchase,
     postPurchase,
-    amount,
+    discountAmount,
     discountType,
   } = settingsInfo;
 
-  const handleClick = () => {
-    console.log({
-      ...settingsInfo,
-      discountType: settingsInfo?.discountType[0],
-      skipDisplay: settingsInfo?.skipDisplay[0],
-    });
-  };
+  console.log({ discountType });
 
   const handleChange = (value, field) => {
+    setIsDisableBtn(false);
     setSettingsInfo({ ...settingsInfo, [field]: value });
   };
-
-  // const handleSettingsInfo = (e) =>{}
 
   return (
     <Card title="Auto Bumps Settings" sectioned>
@@ -107,8 +89,8 @@ const AutoBumpSettings = () => {
       <div className={styles.discount}>
         <div>
           <TextField
-            value={amount}
-            onChange={(value) => handleChange(value, "amount")}
+            value={String(discountAmount)}
+            onChange={(value) => handleChange(value, "discountAmount")}
             label="Add discount (post-purchase only)"
             placeholder="e.g..9.99 "
             type="number"
@@ -131,8 +113,6 @@ const AutoBumpSettings = () => {
           />
         </div>
       </div>
-
-      <Button onClick={handleClick}>Submit</Button>
     </Card>
   );
 };

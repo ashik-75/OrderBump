@@ -1,11 +1,10 @@
 import { ResourcePicker } from "@shopify/app-bridge-react";
-import { Button, Card } from "@shopify/polaris";
+import { Button, Card, Thumbnail } from "@shopify/polaris";
 import React, { useState } from "react";
 
-const AutoBumpOffer = () => {
+const AutoBumpOffer = ({ setSettingsInfo, settingsInfo, setIsDisableBtn }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [product, setProduct] = useState(null);
-  console.log(product);
+  const { fallbackProduct } = settingsInfo;
 
   return (
     <Card title="Fallback Product Offer" sectioned>
@@ -14,22 +13,26 @@ const AutoBumpOffer = () => {
         data to generate an Auto Bump, you can manually set a fallback product
         offer to show your customers.
       </p>
-      {product && (
-        <Card title={product?.selection[0]?.title} sectioned>
-          <img
-            style={{ width: 100, height: 100 }}
-            src={product?.selection[0]?.images[0]?.originalSrc}
-            alt=""
+      {fallbackProduct && (
+        <Card title={fallbackProduct?.title} sectioned>
+          <Thumbnail
+            source={fallbackProduct?.images[0]?.originalSrc || ""}
+            alt="Black choker necklace"
           />
         </Card>
       )}
       <br />
       <div style={{ display: "flex", gap: 10 }}>
         <Button onClick={() => setIsOpen(true)}>
-          {product ? "Change Product" : "Select Product "}
+          {fallbackProduct ? "Change Product" : "Select Product "}
         </Button>
-        {product && (
-          <Button destructive={true} onClick={() => setProduct(null)}>
+        {fallbackProduct && (
+          <Button
+            destructive={true}
+            onClick={() =>
+              setSettingsInfo({ ...settingsInfo, fallbackProduct: null })
+            }
+          >
             Remove Product
           </Button>
         )}
@@ -42,7 +45,11 @@ const AutoBumpOffer = () => {
         selectMultiple={false}
         onSelection={(product) => {
           setIsOpen(false);
-          setProduct(product);
+          setIsDisableBtn(false);
+          setSettingsInfo({
+            ...settingsInfo,
+            fallbackProduct: product?.selection[0],
+          });
         }}
       />
     </Card>

@@ -3,7 +3,7 @@ import { MongoClient } from "mongodb";
 const mongouri = process.env.MONGO_URI;
 
 export async function storeCallback(session) {
-  console.log("store callback", session);
+  //   console.log("store callback", session);
   const client = await MongoClient.connect(mongouri).catch((err) => {
     throw new Error(err);
   });
@@ -29,24 +29,24 @@ export async function storeCallback(session) {
   }
 }
 export async function loadCallback(id) {
-  console.log("load callback id", id);
+  //   console.log("load callback id", id);
   let sessionDB;
   let session = new ShopifySession(id);
-  console.log("load callback", session);
+  //   console.log("load callback", session);
   const client = await MongoClient.connect(mongouri).catch((err) => {
-    console.log(err);
+    // console.log(err);
   });
   if (!client) return;
   try {
     const db = client.db("bannerpax");
     let collection = db.collection("users");
-    console.log("id after split", id.split("_")[0]);
+    // console.log("id after split", id.split("_")[0]);
     let dbid;
     dbid = await collection.findOne({ id: id });
     if (!dbid) {
       dbid = await collection.findOne({ shop: id.split("_")[0] });
     }
-    console.log("shop from callback", dbid);
+    // console.log("shop from callback", dbid);
     let result = await collection.findOne({
       shop: dbid.shop || id.split("_")[0],
     });
