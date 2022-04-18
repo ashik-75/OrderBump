@@ -55,7 +55,7 @@ const AutoBumpSettings = ({
 
       {/* start backup */}
       <div className={styles.backupDiv}>
-        <p className={styles.backupParagraph}>Backup Offer settings: </p>
+        <p className={styles.backupParagraph}>Backup Offer setting: </p>
         <Checkbox
           label="Use Auto Bumps for Backup Offers"
           helpText="Show an Auto Bump automatically when none of the Manual Bumps match customer cart conditions"
