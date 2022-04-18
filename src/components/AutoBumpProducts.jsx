@@ -75,7 +75,6 @@ const AutoBumpProducts = ({
 
   const initialIds = excludeProducts?.map((prod) => ({ id: prod?.id }));
 
-  console.log({ initialIds });
   return (
     <Card title="Exclude Products" sectioned>
       <p style={{ marginBottom: "20px" }}>

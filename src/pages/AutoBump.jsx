@@ -7,7 +7,7 @@ import AutoBumpSettings from "../components/AutoBumpSettings";
 import AutoBumpSkeleton from "../components/AutoBumpSkeleton";
 import processAutoBumpInput from "../customFunction/processAutoBumpInput";
 import useAddAutoBump from "../hooks/useAddAutoBump";
-import useGetAutoBump from "../hooks/useGetAutoBump";
+import useFetchAutoBump from "../hooks/useFetchAutoBump";
 import useUpdateAutoBump from "../hooks/useUpdateAutoBump";
 
 const AutoBump = () => {
@@ -40,13 +40,14 @@ const AutoBump = () => {
     error,
   } = useAddAutoBump();
 
-  // Get Data
+  // fetch data in traditional way:
   const {
-    mutate: getAutoBump,
-    isLoading: isGetLoading,
-    isSuccess: isAutoBumpSuccess,
-    data: singleData,
-  } = useGetAutoBump();
+    data: fetchData,
+    isLoading: fetchLoading,
+    isError: isFetchError,
+    error: fetchError,
+    isSuccess: fetchSuccess,
+  } = useFetchAutoBump(autoBumpId);
 
   // Update data
   const {
@@ -59,8 +60,8 @@ const AutoBump = () => {
   // End Query data
 
   useEffect(() => {
-    if (singleData?.data && isAutoBumpSuccess) {
-      setSettingsInfo(singleData?.data);
+    if (fetchData?.data && fetchSuccess) {
+      setSettingsInfo(fetchData?.data);
     }
     if (data?.data) {
       setAutoBumpId(data?.data?._id);
@@ -68,13 +69,7 @@ const AutoBump = () => {
     if (updateData?.data && isUpdateSuccess) {
       setSettingsInfo(updateData?.data);
     }
-  }, [isGetLoading, isAddLoading, isUpdateLoading, autoBumpId]);
-
-  useEffect(() => {
-    if (autoBumpId) {
-      getAutoBump(autoBumpId);
-    }
-  }, []);
+  }, [isAddLoading, isUpdateLoading, fetchLoading]);
 
   const updateAutoBumpToServer = () => {
     const processedInput = processAutoBumpInput(settingsInfo);
@@ -87,7 +82,7 @@ const AutoBump = () => {
     console.log(processedInput);
   };
 
-  return isUpdateLoading || isAddLoading || isGetLoading ? (
+  return isUpdateLoading || isAddLoading || fetchLoading ? (
     <AutoBumpSkeleton />
   ) : (
     <Page

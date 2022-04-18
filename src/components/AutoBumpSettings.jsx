@@ -16,8 +16,6 @@ const AutoBumpSettings = ({
     discountType,
   } = settingsInfo;
 
-  console.log({ discountType });
-
   const handleChange = (value, field) => {
     setIsDisableBtn(false);
     setSettingsInfo({ ...settingsInfo, [field]: value });
