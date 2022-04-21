@@ -1,4 +1,4 @@
-import { ResourcePicker } from "@shopify/app-bridge-react";
+import { ResourcePicker, useAppBridge } from "@shopify/app-bridge-react";
 import {
   Badge,
   Button,
@@ -11,7 +11,6 @@ import {
   PageActions,
   Select,
   Stack,
-  Subheading,
   TextField,
   TextStyle,
   Thumbnail,
@@ -31,7 +30,7 @@ const shape = {
   data: "",
 };
 
-function Condition({ bumpInfo, setBumpInfo, setSaveOption }) {
+function Condition({ manualBumpInfo, setManualBumpInfo, setSaveOption }) {
   const [allCondition, setAllCondition] = useState([]);
 
   const addAnotherCondition = () => {
@@ -67,11 +66,11 @@ function Condition({ bumpInfo, setBumpInfo, setSaveOption }) {
   };
 
   useEffect(() => {
-    setBumpInfo({ ...bumpInfo, conditions: allCondition });
+    setManualBumpInfo({ ...manualBumpInfo, conditions: allCondition });
   }, [allCondition]);
 
   useEffect(() => {
-    setAllCondition(bumpInfo?.conditions);
+    setAllCondition(manualBumpInfo?.conditions);
   }, []);
 
   return (
@@ -105,26 +104,29 @@ function Condition({ bumpInfo, setBumpInfo, setSaveOption }) {
 
 const BumpDetails = () => {
   const navigate = useNavigate();
+  const app = useAppBridge();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const queryClient = useQueryClient();
-  const bumpId = useParams()?.bumpId;
+  const { manualBumpId } = useParams();
+
   const [saveoption, setSaveOption] = useState(true);
-  const [bumpInfo, setBumpInfo] = useState({
-    postpurchase: false,
-    prepurchase: false,
+  const [manualBumpInfo, setManualBumpInfo] = useState({
+    postPurchase: false,
+    prePurchase: false,
     product: null,
     title: "",
     content: "",
     conditions: [],
   });
 
-  // get single bumps by id
-  const { data, isError, isLoading, isSuccess } = useGetSingleBump(bumpId);
+  // TODO: GET SINGLE BUMP DATA
+  const { data, isError, isLoading, isSuccess } = useGetSingleBump({
+    app,
+    manualBumpId,
+  });
 
-  console.log({ data, isLoading, isSuccess });
-
-  // update mutation
+  // TODO: UPDATE BUMP DATA (MUTATION)
   const {
     mutate: updateMutation,
     isLoading: isUpdateLoading,
@@ -132,32 +134,33 @@ const BumpDetails = () => {
     data: updateData,
   } = useGetUpdateBump();
 
-  const { postpurchase, prepurchase, title, content, product } = bumpInfo;
-
-  const handleChange = (value, field) => {
-    setSaveOption(false);
-    setBumpInfo({ ...bumpInfo, [field]: value });
+  const handleUpdate = () => {
+    const data = processOutput(manualBumpInfo);
+    console.log(data);
+    updateMutation({ manualBumpId, info: data, app });
   };
 
-  const handleUpdate = () => {
-    const data = processOutput(bumpInfo);
-    updateMutation({ id: bumpId, info: data });
+  // TODO; EXTRACT BUMP INFO
+  const { postPurchase, prePurchase, title, content, product } = manualBumpInfo;
+
+  // TODO: HANDLE UPDATE BUMP INFO
+  const handleChange = (value, field) => {
+    setSaveOption(false);
+    setManualBumpInfo({ ...manualBumpInfo, [field]: value });
   };
 
   useEffect(() => {
     if (isSuccess && data?.data) {
-      setBumpInfo(data?.data);
+      setManualBumpInfo(data?.data);
     }
   }, [isLoading]);
 
   useEffect(() => {
     if (isUpdateSuccess) {
       queryClient.invalidateQueries("allBumps");
-      setBumpInfo(updateData?.data);
+      setManualBumpInfo(updateData?.data);
     }
   }, [isUpdateSuccess]);
-
-  console.log({ bump: bumpInfo });
 
   return isLoading || isUpdateLoading ? (
     <BumpDetailsSkeleton />
@@ -169,7 +172,9 @@ const BumpDetails = () => {
         disabled: saveoption,
         onAction: handleUpdate,
       }}
-      title={bumpInfo?.title || bumpInfo?.product?.selection[0]?.title}
+      title={
+        manualBumpInfo?.title || manualBumpInfo?.product?.selection[0]?.title
+      }
       breadcrumbs={[{ content: "Products", onAction: () => navigate("/") }]}
       titleMetadata={
         <Badge status="warning">{isLoading ? "Loading" : "complete"}</Badge>
@@ -194,14 +199,14 @@ const BumpDetails = () => {
               <Checkbox
                 label="Pre-purchase (checkout)"
                 helpText="Feature your product offer in a widget on the checkout page of your store"
-                checked={prepurchase}
-                onChange={(value) => handleChange(value, "prepurchase")}
+                checked={prePurchase}
+                onChange={(value) => handleChange(value, "prePurchase")}
               />
               <Checkbox
                 label="Post-purchase"
                 helpText="Feature your product offer in a separate page after checkout and before the order status page"
-                checked={postpurchase}
-                onChange={(value) => handleChange(value, "postpurchase")}
+                checked={postPurchase}
+                onChange={(value) => handleChange(value, "postPurchase")}
               />
             </FormLayout>
           </Card>
@@ -233,7 +238,6 @@ const BumpDetails = () => {
                   </Stack.Item>
                   <Stack.Item fill>
                     <Heading>{product?.selection[0]?.title}</Heading>
-                    <Subheading>{product?.id}</Subheading>
                   </Stack.Item>
                   <Stack.Item>
                     <Heading>
@@ -265,7 +269,7 @@ const BumpDetails = () => {
                   destructive={true}
                   onClick={() => {
                     setSaveOption(false);
-                    setBumpInfo({ ...bumpInfo, product: null });
+                    setManualBumpInfo({ ...manualBumpInfo, product: null });
                   }}
                 >
                   Remove Product
@@ -276,8 +280,8 @@ const BumpDetails = () => {
 
             {product && (
               <Condition
-                bumpInfo={bumpInfo}
-                setBumpInfo={setBumpInfo}
+                manualBumpInfo={manualBumpInfo}
+                setManualBumpInfo={setManualBumpInfo}
                 setSaveOption={setSaveOption}
               />
             )}
@@ -291,7 +295,7 @@ const BumpDetails = () => {
               onSelection={(product) => {
                 setIsOpen(false);
                 handleChange(product, "product");
-                // setBumpInfo({ ...bumpInfo, product });
+                // setManualBumpInfo({ ...manualBumpInfo, product });
               }}
             />
           </Card>
@@ -344,7 +348,7 @@ const BumpDetails = () => {
       <DeleteBumpModal
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
-        bumpId={bumpId}
+        manualBumpId={manualBumpId}
       />
       <br />
 

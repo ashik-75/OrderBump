@@ -15,7 +15,8 @@ import applyAuthMiddleware from "./middleware/auth.js";
 import errorHandler from "./middleware/errorHandler.js";
 import verifyRequest from "./middleware/verify-request.js";
 import autoBumpRouter from "./routes/autoBumpRoutes.js";
-import bumpRouter from "./routes/bumpRoutes.js";
+import manualBumpRouter from "./routes/manualBumpRoutes.js";
+import orderBumpRouter from "./routes/orderBumpRoutes.js";
 
 dotenv.config();
 
@@ -69,10 +70,12 @@ export async function createServer(
 
   // define all routes
   app.get("/test", (req, res) => {
+    console.log({ req });
     res.send("test backend");
   });
-  app.use("/api/bumps", bumpRouter);
+  app.use("/api/manualBump", manualBumpRouter);
   app.use("/api/autoBump", autoBumpRouter);
+  app.use("/api/orderBump", orderBumpRouter);
 
   // end my route
 

@@ -1,16 +1,19 @@
+import { useAppBridge } from "@shopify/app-bridge-react";
 import { Button, Modal } from "@shopify/polaris";
 import { useEffect } from "react";
 import { useQueryClient } from "react-query";
 import { useNavigate } from "react-router-dom";
-import useGetDeleteBump from "../hooks/useGetDeleteBump";
+import useDeleteBump from "../hooks/useDeleteBump";
 
-function DeleteBumpModal({ bumpId, setIsModalOpen, isModalOpen }) {
+function DeleteBumpModal({ manualBumpId, setIsModalOpen, isModalOpen }) {
   const queryClient = useQueryClient();
+  const app = useAppBridge();
   const navigate = useNavigate();
-  const { mutate, isLoading, isSuccess } = useGetDeleteBump();
+  const { mutate, isLoading, isSuccess, isError, error } = useDeleteBump();
 
+  console.log("deleted - ", { mutate, isLoading, isSuccess, isError, error });
   const handleDelete = () => {
-    mutate(bumpId);
+    mutate({ manualBumpId, app });
   };
 
   const handleChange = () => {

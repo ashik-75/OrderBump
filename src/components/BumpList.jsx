@@ -13,9 +13,9 @@ import {
 } from "@shopify/polaris";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import useGetAllBumps from "../hooks/useGetAllBumps";
+import useGetOrderBump from "../hooks/useGetOrderBump";
 
-function renderItem({ item, navigate }) {
+function renderItem({ item, navigate, merchantId }) {
   const { _id, title, content, handle, product } = item;
   const media = (
     <Avatar
@@ -66,21 +66,28 @@ const filters = [];
 
 const BumpList = () => {
   const navigate = useNavigate();
-  const { data, isSuccess, isLoading } = useGetAllBumps();
 
   const [items, setItems] = useState([]);
   const [totalItems, setTotalItems] = useState([]);
   const [queryValue, setQueryValue] = useState("");
 
+  // TODO : Get Current Merchant Shop data
+  const { data, isLoading, isError, isSuccess } = useGetOrderBump();
+
+  console.log({ data });
+
+  // TODO: Set Filtering Value
   const handleFilterValue = (value) => {
     setQueryValue(value);
   };
 
+  // TODO: Apply Remove BTN
   const handleQueryValueRemove = () => {
     setQueryValue("");
     setItems(totalItems);
   };
 
+  // TODO: Search Functionality
   const handleSearch = () => {
     const filtered = totalItems?.filter((item) => {
       if (item?.title?.toLowerCase().includes(queryValue?.toLowerCase())) {
@@ -91,12 +98,13 @@ const BumpList = () => {
     setItems(filtered);
   };
 
+  // TODO: Data Hydrate after successfully fetch
   useEffect(() => {
     if (data?.data) {
-      setItems(data?.data);
-      setTotalItems(data?.data);
+      setItems(data?.data?.manualBumps);
+      setTotalItems(data?.data?.manualBumps);
     }
-  }, [isSuccess, data]);
+  }, [data]);
 
   const filterControl = (
     <Filters
@@ -112,6 +120,7 @@ const BumpList = () => {
     </Filters>
   );
 
+  // TODO: when Data is empty show this state
   const emptyStateMarkup =
     totalItems && !totalItems?.length ? (
       <EmptyState
@@ -149,7 +158,11 @@ const BumpList = () => {
                 items={items}
                 renderItem={(item) => {
                   // console.log(item);
-                  return renderItem({ item, navigate });
+                  return renderItem({
+                    item,
+                    navigate,
+                    merchantId: data?.data?._id,
+                  });
                 }}
                 filterControl={filterControl}
                 resourceName={{ singular: "file", plural: "files" }}

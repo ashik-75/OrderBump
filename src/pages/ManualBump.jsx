@@ -19,14 +19,13 @@ const ManualBump = () => {
             </p>
           </Banner>
         </Layout.Section>
-
         {/* Manual Bumps title */}
         <Layout.Section>
           <Card title="Manual Bumps" sectioned>
             <p>Manage the bumps that you manually set up here</p>
           </Card>
         </Layout.Section>
-
+        {/* TODO: show All The Bumps */}
         <Layout.Section>
           <BumpList />
         </Layout.Section>

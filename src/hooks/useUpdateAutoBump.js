@@ -1,11 +1,14 @@
+import { getSessionToken } from "@shopify/app-bridge-utils";
 import axios from "axios";
 import { useMutation } from "react-query";
 
-const updateAutoBump = ({ id, info }) => {
-  console.log({ id, info });
-  return axios.put(`/api/autoBump/update/${id}`, info, {
+const updateAutoBump = async ({ autoBumpId, info, app }) => {
+  const session = await getSessionToken(app);
+
+  return axios.put(`/api/autoBump/${autoBumpId}/update`, info, {
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${session}`,
     },
   });
 };

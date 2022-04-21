@@ -1,12 +1,14 @@
-const processOutput = (bumpInfo) => {
+const processOutput = (manualBumpInfo) => {
   const finalData = {
-    ...bumpInfo,
-    multivariants: bumpInfo?.product
-      ? bumpInfo?.product?.selection[0]?.variants?.length > 1
+    ...manualBumpInfo,
+    multiVariants: manualBumpInfo?.product
+      ? manualBumpInfo?.product?.selection[0]?.variants?.length > 1
       : false,
-    handle: bumpInfo?.product ? bumpInfo?.product?.selection[0]?.handle : "",
-    selectedvariants: bumpInfo?.product
-      ? bumpInfo?.product?.selection[0]?.variants?.map((dt) => {
+    handle: manualBumpInfo?.product
+      ? manualBumpInfo?.product?.selection[0]?.handle
+      : "",
+    selectedVariants: manualBumpInfo?.product
+      ? manualBumpInfo?.product?.selection[0]?.variants?.map((dt) => {
           const arr = dt?.id?.split("/");
           const length = arr.length;
           return arr[length - 1];

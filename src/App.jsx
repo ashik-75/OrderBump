@@ -47,7 +47,10 @@ export default function App() {
                 <Route path="/analytics" element={<Analytics />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/support" element={<Support />} />
-                <Route path="/bumpDetails/:bumpId" element={<BumpDetails />} />
+                <Route
+                  path="/bumpDetails/:manualBumpId"
+                  element={<BumpDetails />}
+                />
                 <Route path="/add-bump" element={<AddBump />} />
                 <Route path="/play" element={<Play />} />
               </Routes>

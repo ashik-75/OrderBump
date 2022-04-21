@@ -14,6 +14,10 @@ const AutoBumpSchema = new mongoose.Schema(
     multiVariants: Boolean,
     excludeProducts: Array,
     excludeProductsHandles: Array,
+    orderBump: {
+      type: String,
+      ref: "OrderBump",
+    },
   },
   {
     timestamps: true,

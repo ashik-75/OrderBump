@@ -1,5 +1,7 @@
+import { useAppBridge } from "@shopify/app-bridge-react";
 import { Layout, Page, PageActions } from "@shopify/polaris";
 import React, { useEffect, useState } from "react";
+import { useQueryClient } from "react-query";
 import AutoBumpHead from "../components/AutoBumpHead";
 import AutoBumpOffer from "../components/AutoBumpOffer";
 import AutoBumpProducts from "../components/AutoBumpProducts";
@@ -7,13 +9,19 @@ import AutoBumpSettings from "../components/AutoBumpSettings";
 import AutoBumpSkeleton from "../components/AutoBumpSkeleton";
 import processAutoBumpInput from "../customFunction/processAutoBumpInput";
 import useAddAutoBump from "../hooks/useAddAutoBump";
-import useFetchAutoBump from "../hooks/useFetchAutoBump";
+import useGetOrderBump from "../hooks/useGetOrderBump";
 import useUpdateAutoBump from "../hooks/useUpdateAutoBump";
 
 const AutoBump = () => {
-  const [autoBumpId, setAutoBumpId] = useState("6257f4e05b9b897dbfe08a44");
+  const app = useAppBridge();
+  const queryClient = useQueryClient();
 
+  console.log("Re render");
+
+  // TODO: Update Button State
   const [isDisableBtn, setIsDisableBtn] = useState(true);
+
+  // TODO: AutoBump Setting State (Whole)
   const [settingsInfo, setSettingsInfo] = useState({
     skipDisplay: "",
     backup: false,
@@ -29,27 +37,24 @@ const AutoBump = () => {
     excludeProductsHandles: [],
   });
 
-  // query data
+  // TODO: Get OrderBump
+  const { data, isLoading, isError, isSuccess } = useGetOrderBump();
 
-  // Add data
+  // * Create Muation
+
   const {
-    data,
+    data: responsedata,
     mutate,
-    isError,
     isLoading: isAddLoading,
-    error,
+    isSuccess: isAddSuccess,
   } = useAddAutoBump();
 
-  // fetch data in traditional way:
-  const {
-    data: fetchData,
-    isLoading: fetchLoading,
-    isError: isFetchError,
-    error: fetchError,
-    isSuccess: fetchSuccess,
-  } = useFetchAutoBump(autoBumpId);
+  const saveDataToServer = () => {
+    const processedInput = processAutoBumpInput(settingsInfo);
+    mutate({ info: processedInput, app });
+  };
 
-  // Update data
+  // ? Update Mutation
   const {
     mutate: updateMutate,
     isLoading: isUpdateLoading,
@@ -57,39 +62,43 @@ const AutoBump = () => {
     data: updateData,
   } = useUpdateAutoBump();
 
-  // End Query data
-
-  useEffect(() => {
-    if (fetchData?.data && fetchSuccess) {
-      setSettingsInfo(fetchData?.data);
-    }
-    if (data?.data) {
-      setAutoBumpId(data?.data?._id);
-    }
-    if (updateData?.data && isUpdateSuccess) {
-      setSettingsInfo(updateData?.data);
-    }
-  }, [isAddLoading, isUpdateLoading, fetchLoading]);
-
   const updateAutoBumpToServer = () => {
     const processedInput = processAutoBumpInput(settingsInfo);
-    updateMutate({ id: autoBumpId, info: processedInput });
+    updateMutate({
+      autoBumpId: data?.data?.autoBump?._id,
+      info: processedInput,
+      app,
+    });
   };
 
-  const saveDataToServer = () => {
-    const processedInput = processAutoBumpInput(settingsInfo);
-    mutate(processedInput);
-    console.log(processedInput);
-  };
+  // TODO : Side Effect On UI
 
-  return isUpdateLoading || isAddLoading || fetchLoading ? (
+  useEffect(() => {
+    if (data?.data?.autoBump && isSuccess) {
+      setSettingsInfo(data?.data?.autoBump);
+    }
+
+    if (responsedata?.data && isAddSuccess) {
+      setSettingsInfo(responsedata?.data);
+      queryClient.invalidateQueries("merchant");
+    }
+
+    if (updateData?.data && isUpdateSuccess) {
+      setSettingsInfo(updateData?.data);
+      queryClient.invalidateQueries("merchant");
+    }
+  }, [data, updateData, responsedata]);
+
+  return isUpdateLoading || isAddLoading || isLoading ? (
     <AutoBumpSkeleton />
   ) : (
     <Page
       primaryAction={{
-        content: autoBumpId ? "Update" : "Save",
+        content: data?.data?.autoBump ? "Update" : "Save",
         disabled: isDisableBtn,
-        onAction: autoBumpId ? updateAutoBumpToServer : saveDataToServer,
+        onAction: data?.data?.autoBump
+          ? updateAutoBumpToServer
+          : saveDataToServer,
       }}
     >
       <Layout>
@@ -123,9 +132,11 @@ const AutoBump = () => {
 
       <PageActions
         primaryAction={{
-          content: autoBumpId ? "Update" : "Save",
+          content: data?.data?.autoBump ? "Update" : "Save",
           disabled: isDisableBtn,
-          onAction: autoBumpId ? updateAutoBumpToServer : saveDataToServer,
+          onAction: data?.data?.autoBump
+            ? updateAutoBumpToServer
+            : saveDataToServer,
         }}
       />
     </Page>

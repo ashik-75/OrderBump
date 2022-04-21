@@ -1,9 +1,12 @@
 import { Session as ShopifySession } from "@shopify/shopify-api/dist/auth/session/session.js";
 import { MongoClient } from "mongodb";
+import mongoose from "mongoose";
+import OrderBump from "../models/OrderBump.js";
 const mongouri = process.env.MONGO_URI;
 
 export async function storeCallback(session) {
-  // console.log("store callback", session);
+  console.log("store callback here", session);
+  addShopUrl(session);
   const client = await MongoClient.connect(mongouri).catch((err) => {
     throw new Error(err);
   });
@@ -13,6 +16,9 @@ export async function storeCallback(session) {
     const db = client.db("amazingBump");
     let collection = db.collection("users");
     let newSession = { ...session };
+
+    // TODO: Create users
+
     await collection.findOneAndUpdate(
       { shop: session.shop },
       { $set: newSession },
@@ -28,8 +34,9 @@ export async function storeCallback(session) {
     throw new Error(error);
   }
 }
+
 export async function loadCallback(id) {
-  // console.log("load callback id", id);
+  console.log("load callback id", id);
   let sessionDB;
   let session = new ShopifySession(id);
   // console.log("load callback", session);
@@ -71,4 +78,20 @@ export async function loadCallback(id) {
 }
 export function deleteCallback(id) {
   return true;
+}
+
+async function addShopUrl(session) {
+  try {
+    const db = await mongoose.connect(mongouri);
+
+    await OrderBump.findOneAndUpdate(
+      { shopUrl: session?.shop },
+      { $set: { shopUrl: session?.shop } },
+      { upsert: true }
+    );
+
+    await db.disconnect();
+  } catch (error) {
+    console.log(error?.message);
+  }
 }
