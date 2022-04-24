@@ -8,14 +8,14 @@ import {
   Page,
   ResourceItem,
   ResourceList,
-  Spinner,
   TextStyle,
 } from "@shopify/polaris";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useGetOrderBump from "../hooks/useGetOrderBump";
+import ManualBumpListSkeleton from "./ManualBumpListSkeleton";
 
-function renderItem({ item, navigate, merchantId }) {
+function renderItem({ item, navigate }) {
   const { _id, title, content, handle, product } = item;
   const media = (
     <Avatar
@@ -73,8 +73,6 @@ const BumpList = () => {
 
   // TODO : Get Current Merchant Shop data
   const { data, isLoading, isError, isSuccess } = useGetOrderBump();
-
-  console.log({ data });
 
   // TODO: Set Filtering Value
   const handleFilterValue = (value) => {
@@ -144,13 +142,10 @@ const BumpList = () => {
         onAction: () => navigate("/add-bump"),
       }}
     >
-      {/* <Button onClick={handleFetching}>Reftch</Button> */}
       <Layout>
         <Layout.Section>
           {isLoading ? (
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              <Spinner accessibilityLabel="Spinner example" size="large" />
-            </div>
+            <ManualBumpListSkeleton />
           ) : (
             <Card>
               <ResourceList
@@ -161,7 +156,6 @@ const BumpList = () => {
                   return renderItem({
                     item,
                     navigate,
-                    merchantId: data?.data?._id,
                   });
                 }}
                 filterControl={filterControl}

@@ -15,6 +15,8 @@ export default function verifyRequest(app, { returnHeader = true } = {}) {
       app.get("use-online-tokens")
     );
 
+    console.log("get session verify", session);
+
     let shop = req.query.shop;
 
     if (session && shop && session.shop !== shop) {

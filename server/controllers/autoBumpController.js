@@ -1,22 +1,22 @@
 import expressAsyncHandler from "express-async-handler";
 import mongoose from "mongoose";
+import returnSessionData from "../index.js";
 import AutoBump from "../models/AutoBump.js";
 import OrderBump from "../models/OrderBump.js";
-import extractShopUrl from "./extractSession.js";
 
 // TODO: Add Auto Bump(test done)
 const addAutoBump = expressAsyncHandler(async (req, res) => {
   const db = await mongoose.connect(process.env.MONGO_URI);
-  const shopUrl = extractShopUrl(req);
+  const { shop } = await returnSessionData(req, res);
 
   const autoBump = await AutoBump.create({
     ...req.body,
-    orderBump: shopUrl,
+    orderBump: shop,
   });
 
   await OrderBump.findOneAndUpdate(
     {
-      shopUrl,
+      shop: shop,
     },
     {
       $set: { autoBump: autoBump?._id },
@@ -32,16 +32,14 @@ const addAutoBump = expressAsyncHandler(async (req, res) => {
 
 // TODO: Update auto Bump (test done)
 const updateAutoBump = expressAsyncHandler(async (req, res) => {
-  const shopUrl = extractShopUrl(req);
+  const { shop } = await returnSessionData(req, res);
   const db = await mongoose.connect(process.env.MONGO_URI);
   const autoBumpId = req.params.autoBumpId;
-
-  console.log({ shopUrl, autoBumpId, body: req.body });
 
   const updateBump = await AutoBump.findOneAndUpdate(
     {
       _id: autoBumpId,
-      orderBump: shopUrl,
+      orderBump: shop,
     },
     req.body,
     {

@@ -13,8 +13,9 @@ const updateSingleBump = async ({ manualBumpId, info, app }) => {
 };
 
 const useGetUpdateBump = () => {
-  const { mutate, isLoading, isSuccess, data } = useMutation(updateSingleBump);
-  return { mutate, isLoading, isSuccess, data };
+  const { mutate, isLoading, isSuccess, data, isError, error } =
+    useMutation(updateSingleBump);
+  return { mutate, isLoading, isSuccess, data, isError, error };
 };
 
 export default useGetUpdateBump;

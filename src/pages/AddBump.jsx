@@ -16,7 +16,6 @@ import {
   Thumbnail,
 } from "@shopify/polaris";
 import React, { useEffect, useState } from "react";
-import { useQueryClient } from "react-query";
 import { useNavigate } from "react-router-dom";
 import AutoBumpSkeleton from "../components/AutoBumpSkeleton";
 import processOutput from "../customFunction/processOutput";
@@ -102,7 +101,6 @@ function Condition({ manualBumpInfo, setManualBumpInfo, setSaveOption }) {
 const AddBump = () => {
   const app = useAppBridge();
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -111,17 +109,18 @@ const AddBump = () => {
     postPurchase: false,
     prePurchase: false,
     product: null,
+    enable: false,
     title: "",
     content: "",
     conditions: [],
   });
 
   // TODO: Extract ManualBumpInfo
-  const { postPurchase, prePurchase, title, content, product, conditions } =
+  const { postPurchase, prePurchase, title, content, product, enable } =
     manualBumpInfo;
 
-  // TODO: Create New Banual Bump
-  const { mutate, isLoading, isError, isSuccess, data } = useAddBump();
+  // TODO: Create New Manual Bump
+  const { mutate, isLoading, isError, isSuccess } = useAddBump();
 
   const handleAction = () => {
     const data = processOutput(manualBumpInfo);
@@ -131,7 +130,6 @@ const AddBump = () => {
   useEffect(() => {
     if (isSuccess) {
       navigate("/");
-      queryClient.invalidateQueries("orderBump");
     }
   }, [isSuccess]);
 
@@ -139,6 +137,11 @@ const AddBump = () => {
   const handleChange = (value, field) => {
     setSaveOption(false);
     setManualBumpInfo({ ...manualBumpInfo, [field]: value });
+  };
+
+  const handleEnable = () => {
+    setSaveOption(false);
+    setManualBumpInfo({ ...manualBumpInfo, enable: !enable });
   };
 
   return isLoading ? (
@@ -155,9 +158,9 @@ const AddBump = () => {
       titleMetadata={<Badge status="warning">Complete</Badge>}
       secondaryActions={[
         {
-          content: "Enable",
+          content: enable ? "Disable" : "Enable",
           accessibilityLabel: "Secondary action label",
-          onAction: () => alert("Duplicate action"),
+          onAction: handleEnable,
         },
       ]}
     >

@@ -26,6 +26,7 @@ const Analytics = () => {
       <Card sectioned>
         <TextContainer>
           <Heading>OrderBump Revenue Overview</Heading>
+          {/* Here is Apex Chart */}
           <ApexChart />
         </TextContainer>
       </Card>

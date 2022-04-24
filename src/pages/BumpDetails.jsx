@@ -115,10 +115,15 @@ const BumpDetails = () => {
     postPurchase: false,
     prePurchase: false,
     product: null,
+    enable: false,
     title: "",
     content: "",
     conditions: [],
   });
+
+  // TODO; EXTRACT BUMP INFO
+  const { postPurchase, prePurchase, title, content, product, enable } =
+    manualBumpInfo;
 
   // TODO: GET SINGLE BUMP DATA
   const { data, isError, isLoading, isSuccess } = useGetSingleBump({
@@ -131,17 +136,18 @@ const BumpDetails = () => {
     mutate: updateMutation,
     isLoading: isUpdateLoading,
     isSuccess: isUpdateSuccess,
+    isError: isUpdateError,
+    error: updateError,
     data: updateData,
   } = useGetUpdateBump();
+
+  console.log({ isUpdateError, updateError });
 
   const handleUpdate = () => {
     const data = processOutput(manualBumpInfo);
     console.log(data);
     updateMutation({ manualBumpId, info: data, app });
   };
-
-  // TODO; EXTRACT BUMP INFO
-  const { postPurchase, prePurchase, title, content, product } = manualBumpInfo;
 
   // TODO: HANDLE UPDATE BUMP INFO
   const handleChange = (value, field) => {
@@ -162,11 +168,15 @@ const BumpDetails = () => {
     }
   }, [isUpdateSuccess]);
 
+  const handleEnable = () => {
+    setSaveOption(false);
+    setManualBumpInfo({ ...manualBumpInfo, enable: !enable });
+  };
+
   return isLoading || isUpdateLoading ? (
     <BumpDetailsSkeleton />
   ) : (
     <Page
-      // divider
       primaryAction={{
         content: isUpdateLoading ? "Updating" : "Save",
         disabled: saveoption,
@@ -181,13 +191,12 @@ const BumpDetails = () => {
       }
       secondaryActions={[
         {
-          content: "Enable",
+          content: enable ? "Disable" : "Enable",
           accessibilityLabel: "Secondary action label",
-          onAction: () => alert("Duplicate action"),
+          onAction: handleEnable,
         },
       ]}
     >
-      {/* bump option (checkbox) */}
       <Layout>
         <Layout.AnnotatedSection
           id="storeDetails"

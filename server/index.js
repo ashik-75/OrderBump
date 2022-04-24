@@ -13,12 +13,19 @@ import {
 } from "./controllers/session.js";
 import applyAuthMiddleware from "./middleware/auth.js";
 import errorHandler from "./middleware/errorHandler.js";
+import getSession from "./middleware/getSession.js";
 import verifyRequest from "./middleware/verify-request.js";
 import autoBumpRouter from "./routes/autoBumpRoutes.js";
+import fetchDataRouter from "./routes/fetchDataRoutes.js";
 import manualBumpRouter from "./routes/manualBumpRoutes.js";
 import orderBumpRouter from "./routes/orderBumpRoutes.js";
 
 dotenv.config();
+
+export default async function returnSessionData(req, res) {
+  const decode = await Shopify.Utils?.loadCurrentSession(req, res);
+  return decode;
+}
 
 const USE_ONLINE_TOKENS = true;
 const TOP_LEVEL_OAUTH_COOKIE = "shopify_top_level_oauth";
@@ -69,13 +76,15 @@ export async function createServer(
   applyAuthMiddleware(app);
 
   // define all routes
-  app.get("/test", (req, res) => {
-    console.log({ req });
-    res.send("test backend");
-  });
+
+  app.get("/check", getSession);
   app.use("/api/manualBump", manualBumpRouter);
   app.use("/api/autoBump", autoBumpRouter);
   app.use("/api/orderBump", orderBumpRouter);
+
+  // New Route
+
+  app.use("/api/v1/", fetchDataRouter);
 
   // end my route
 

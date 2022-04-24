@@ -1,12 +1,14 @@
 import { Session as ShopifySession } from "@shopify/shopify-api/dist/auth/session/session.js";
 import { MongoClient } from "mongodb";
 import mongoose from "mongoose";
+import MerchantData from "../models/MerchantData.js";
 import OrderBump from "../models/OrderBump.js";
 const mongouri = process.env.MONGO_URI;
 
 export async function storeCallback(session) {
-  console.log("store callback here", session);
+  // console.log("store callback here", session);
   addShopUrl(session);
+  addMerchantData(session);
   const client = await MongoClient.connect(mongouri).catch((err) => {
     throw new Error(err);
   });
@@ -36,7 +38,7 @@ export async function storeCallback(session) {
 }
 
 export async function loadCallback(id) {
-  console.log("load callback id", id);
+  // console.log("load callback id", id);
   let sessionDB;
   let session = new ShopifySession(id);
   // console.log("load callback", session);
@@ -85,8 +87,24 @@ async function addShopUrl(session) {
     const db = await mongoose.connect(mongouri);
 
     await OrderBump.findOneAndUpdate(
-      { shopUrl: session?.shop },
-      { $set: { shopUrl: session?.shop } },
+      { shop: session?.shop },
+      { $set: { shop: session?.shop } },
+      { upsert: true }
+    );
+
+    await db.disconnect();
+  } catch (error) {
+    console.log(error?.message);
+  }
+}
+
+async function addMerchantData(session) {
+  try {
+    const db = await mongoose.connect(mongouri);
+
+    await MerchantData.findOneAndUpdate(
+      { shop: session?.shop },
+      { $set: { shop: session?.shop } },
       { upsert: true }
     );
 

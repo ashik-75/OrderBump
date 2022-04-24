@@ -11,7 +11,6 @@ function DeleteBumpModal({ manualBumpId, setIsModalOpen, isModalOpen }) {
   const navigate = useNavigate();
   const { mutate, isLoading, isSuccess, isError, error } = useDeleteBump();
 
-  console.log("deleted - ", { mutate, isLoading, isSuccess, isError, error });
   const handleDelete = () => {
     mutate({ manualBumpId, app });
   };

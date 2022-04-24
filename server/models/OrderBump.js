@@ -2,17 +2,13 @@ import mongoose from "mongoose";
 
 const orderBumpSchema = new mongoose.Schema(
   {
-    shopUrl: {
+    shop: {
       type: String,
       default: "",
     },
     bumpLocation: {
       type: String,
       default: "",
-    },
-    success: {
-      type: Boolean,
-      default: false,
     },
     displayAt: {
       type: String,

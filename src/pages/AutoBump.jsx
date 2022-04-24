@@ -1,7 +1,6 @@
 import { useAppBridge } from "@shopify/app-bridge-react";
 import { Layout, Page, PageActions } from "@shopify/polaris";
 import React, { useEffect, useState } from "react";
-import { useQueryClient } from "react-query";
 import AutoBumpHead from "../components/AutoBumpHead";
 import AutoBumpOffer from "../components/AutoBumpOffer";
 import AutoBumpProducts from "../components/AutoBumpProducts";
@@ -14,10 +13,6 @@ import useUpdateAutoBump from "../hooks/useUpdateAutoBump";
 
 const AutoBump = () => {
   const app = useAppBridge();
-  const queryClient = useQueryClient();
-
-  console.log("Re render");
-
   // TODO: Update Button State
   const [isDisableBtn, setIsDisableBtn] = useState(true);
 
@@ -40,27 +35,17 @@ const AutoBump = () => {
   // TODO: Get OrderBump
   const { data, isLoading, isError, isSuccess } = useGetOrderBump();
 
-  // * Create Muation
-
-  const {
-    data: responsedata,
-    mutate,
-    isLoading: isAddLoading,
-    isSuccess: isAddSuccess,
-  } = useAddAutoBump();
+  // TODO: Create AutoBump
+  const { mutate, isLoading: isAddLoading } = useAddAutoBump();
 
   const saveDataToServer = () => {
     const processedInput = processAutoBumpInput(settingsInfo);
     mutate({ info: processedInput, app });
   };
 
-  // ? Update Mutation
-  const {
-    mutate: updateMutate,
-    isLoading: isUpdateLoading,
-    isSuccess: isUpdateSuccess,
-    data: updateData,
-  } = useUpdateAutoBump();
+  // ? Update AutoBump
+  const { mutate: updateMutate, isLoading: isUpdateLoading } =
+    useUpdateAutoBump();
 
   const updateAutoBumpToServer = () => {
     const processedInput = processAutoBumpInput(settingsInfo);
@@ -77,17 +62,7 @@ const AutoBump = () => {
     if (data?.data?.autoBump && isSuccess) {
       setSettingsInfo(data?.data?.autoBump);
     }
-
-    if (responsedata?.data && isAddSuccess) {
-      setSettingsInfo(responsedata?.data);
-      queryClient.invalidateQueries("merchant");
-    }
-
-    if (updateData?.data && isUpdateSuccess) {
-      setSettingsInfo(updateData?.data);
-      queryClient.invalidateQueries("merchant");
-    }
-  }, [data, updateData, responsedata]);
+  }, [data]);
 
   return isUpdateLoading || isAddLoading || isLoading ? (
     <AutoBumpSkeleton />
