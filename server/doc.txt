@@ -1,0 +1,12 @@
+Update AutoBump & ManualBump Model
+
+Add Two more field 
+    1. views => Number
+    2. click => Number
+
+GET /api/autoBump/:autoBumpId/views => Increment AutoBump views
+GET /api/autoBump/:autoBumpId/click => Increment AutoBump Click
+
+
+GET /api/manualBump/:manualBumpId/views => Increment manualBump views
+GET /api/manualBump/:manualBumpId/click => Increment manualBump Click

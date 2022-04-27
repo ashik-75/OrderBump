@@ -56,4 +56,64 @@ const updateAutoBump = expressAsyncHandler(async (req, res) => {
   res.send(updateBump);
 });
 
-export { addAutoBump, updateAutoBump };
+// ? Update View in auto Bump
+
+const updateAutoBumpViews = expressAsyncHandler(async (req, res) => {
+  console.log("request landed");
+  const readyState = mongoose.connection.readyState;
+
+  if (!readyState) connectDB();
+
+  const { shop } = await returnSessionData(req, res);
+
+  const autoBumpId = req.params?.autoBumpId;
+
+  const updateData = await AutoBump.findOneAndUpdate(
+    {
+      _id: autoBumpId,
+      orderBump: shop,
+    },
+    {
+      $inc: { views: 1 },
+    },
+    {
+      new: true,
+    }
+  );
+
+  res.send(updateData);
+});
+
+// ? Update click in auto Bump
+
+const updateAutoBumpClick = expressAsyncHandler(async (req, res) => {
+  const readyState = mongoose.connection.readyState;
+
+  if (!readyState) connectDB();
+
+  const { shop } = await returnSessionData(req, res);
+
+  const autoBumpId = req.params?.autoBumpId;
+
+  const updateData = await AutoBump.findOneAndUpdate(
+    {
+      _id: autoBumpId,
+      orderBump: shop,
+    },
+    {
+      $inc: { click: 1 },
+    },
+    {
+      new: true,
+    }
+  );
+
+  res.send(updateData);
+});
+
+export {
+  addAutoBump,
+  updateAutoBump,
+  updateAutoBumpViews,
+  updateAutoBumpClick,
+};

@@ -124,7 +124,6 @@ export async function createServer(
   );
 
   app.use("/webhooks", webhookRoutes);
-  app.use("/api/v1/check/", demoRoutes);
   app.use("/api/manualBump", manualBumpRouter);
   app.use("/api/autoBump", autoBumpRouter);
   app.use("/api/orderBump", orderBumpRouter);

@@ -14,6 +14,14 @@ const AutoBumpSchema = new mongoose.Schema(
     multiVariants: Boolean,
     excludeProducts: Array,
     excludeProductsHandles: Array,
+    click: {
+      type: Number,
+      default: 0,
+    },
+    views: {
+      type: Number,
+      default: 0,
+    },
     orderBump: {
       type: String,
       ref: "OrderBump",

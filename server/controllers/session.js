@@ -42,7 +42,7 @@ export async function loadCallback(id) {
 
   let sessionDB;
   let session = new ShopifySession(id);
-  console.log("load callback", session);
+  // console.log("load callback", session);
   const client = await MongoClient.connect(mongouri).catch((err) => {
     // console.log(err);
   });
