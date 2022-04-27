@@ -5,22 +5,33 @@ import cors from "cors";
 import dotenv from "dotenv";
 import "dotenv/config";
 import express from "express";
+import expressAsyncHandler from "express-async-handler";
 import { resolve } from "path";
 import {
   deleteCallback,
   loadCallback,
   storeCallback,
 } from "./controllers/session.js";
+import connectDB from "./Database/connectDb.js";
 import applyAuthMiddleware from "./middleware/auth.js";
 import errorHandler from "./middleware/errorHandler.js";
-import getSession from "./middleware/getSession.js";
 import verifyRequest from "./middleware/verify-request.js";
+import MerchantData from "./models/MerchantData.js";
+import OrderBump from "./models/OrderBump.js";
 import autoBumpRouter from "./routes/autoBumpRoutes.js";
+import demoRoutes from "./routes/demoRoutes.js";
 import fetchDataRouter from "./routes/fetchDataRoutes.js";
 import manualBumpRouter from "./routes/manualBumpRoutes.js";
 import orderBumpRouter from "./routes/orderBumpRoutes.js";
+import webhookRoutes from "./routes/webhookRoutes.js";
 
 dotenv.config();
+
+// TODO: Connect MongoDb
+
+connectDB();
+
+// TODO: End MongoDb connection
 
 export default async function returnSessionData(req, res) {
   const decode = await Shopify.Utils?.loadCurrentSession(req, res);
@@ -77,7 +88,43 @@ export async function createServer(
 
   // define all routes
 
-  app.get("/check", getSession);
+  // TODO: find data in multiple condition
+
+  app.get(
+    "/find",
+    expressAsyncHandler(async (req, res) => {
+      const autoBumpId = "626639d3b1be17efd4239965";
+      const manualBumpid = "62664d88b1be17efd42399c1";
+      const shop = "gears4coders.myshopify.com";
+      const result = await OrderBump.findOne({
+        $or: [{ autoBump: autoBumpId }, { manualBumps: manualBumpid }],
+      });
+
+      if (result) {
+        const updatedMerchant = await MerchantData.findOneAndUpdate(
+          { shop },
+          {
+            $inc: { usedOrders: 1 },
+          },
+          {
+            new: true,
+          }
+        );
+
+        res.send({
+          result,
+          merchant: updatedMerchant,
+        });
+      } else {
+        res.json({
+          message: "nothing found",
+        });
+      }
+    })
+  );
+
+  app.use("/webhooks", webhookRoutes);
+  app.use("/api/v1/check/", demoRoutes);
   app.use("/api/manualBump", manualBumpRouter);
   app.use("/api/autoBump", autoBumpRouter);
   app.use("/api/orderBump", orderBumpRouter);
@@ -191,5 +238,7 @@ export async function createServer(
 }
 
 if (!isTest) {
-  createServer().then(({ app }) => app.listen(PORT));
+  createServer().then(({ app }) =>
+    app.listen(PORT, () => console.log(`Server Connected to port ${PORT}`))
+  );
 }

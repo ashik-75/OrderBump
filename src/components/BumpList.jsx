@@ -61,7 +61,7 @@ function renderItem({ item, navigate }) {
     </ResourceItem>
   );
 }
-
+// TODO: Later it will Demonstrate
 const filters = [];
 
 const BumpList = () => {
@@ -74,6 +74,7 @@ const BumpList = () => {
   // TODO : Get Current Merchant Shop data
   const { data, isLoading, isError, isSuccess } = useGetOrderBump();
 
+  console.log({ data, isLoading, isError, isSuccess });
   // TODO: Set Filtering Value
   const handleFilterValue = (value) => {
     setQueryValue(value);
@@ -98,7 +99,7 @@ const BumpList = () => {
 
   // TODO: Data Hydrate after successfully fetch
   useEffect(() => {
-    if (data?.data) {
+    if (data?.data && isSuccess) {
       setItems(data?.data?.manualBumps);
       setTotalItems(data?.data?.manualBumps);
     }
@@ -122,14 +123,13 @@ const BumpList = () => {
   const emptyStateMarkup =
     totalItems && !totalItems?.length ? (
       <EmptyState
-        heading="Upload a file to get started"
-        action={{ content: "Upload files" }}
+        heading="Currently you have no bumps to show, please create new bump"
         image="https://cdn.shopify.com/s/files/1/2376/3301/products/emptystate-files.png"
       >
-        <p>
+        {/* <p>
           You can use the Files section to upload images, videos, and other
           documents
-        </p>
+        </p> */}
       </EmptyState>
     ) : undefined;
 

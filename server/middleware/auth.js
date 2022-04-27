@@ -1,5 +1,4 @@
 import { Shopify } from "@shopify/shopify-api";
-
 import topLevelAuthRedirect from "../helpers/top-level-auth-redirect.js";
 
 export default function applyAuthMiddleware(app) {
@@ -64,7 +63,25 @@ export default function applyAuthMiddleware(app) {
         console.log(
           `Failed to register APP_UNINSTALLED webhook: ${response.result}`
         );
+      } else {
+        console.log("APP_UNINSTALL DONE");
       }
+
+      // TODO: Create Webhook for product
+
+      // const webhook = new Webhook({ session });
+      // webhook.topic = "orders/create";
+      // webhook.address =
+      //   "https://1343-103-154-160-118.ngrok.io/webhooks/create-product";
+      // webhook.format = "json";
+
+      // await webhook.save({});
+
+      // if (webhook) {
+      //   console.log("webhook created");
+      // }
+
+      // ! End Webhook for product
 
       // Redirect to app with shop parameter upon auth
       res.redirect(`/?shop=${session.shop}&host=${host}`);

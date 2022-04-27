@@ -16,7 +16,6 @@ import {
   Thumbnail,
 } from "@shopify/polaris";
 import React, { useEffect, useState } from "react";
-import { useQueryClient } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import BumpDetailsSkeleton from "../components/BumpDetailsSkeleton";
 import DeleteBumpModal from "../components/DeleteBumpModal";
@@ -107,7 +106,6 @@ const BumpDetails = () => {
   const app = useAppBridge();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const queryClient = useQueryClient();
   const { manualBumpId } = useParams();
 
   const [saveoption, setSaveOption] = useState(true);
@@ -141,15 +139,13 @@ const BumpDetails = () => {
     data: updateData,
   } = useGetUpdateBump();
 
-  console.log({ isUpdateError, updateError });
-
   const handleUpdate = () => {
     const data = processOutput(manualBumpInfo);
     console.log(data);
     updateMutation({ manualBumpId, info: data, app });
   };
 
-  // TODO: HANDLE UPDATE BUMP INFO
+  // TODO: HANDLER UPDATE BUMP INFO
   const handleChange = (value, field) => {
     setSaveOption(false);
     setManualBumpInfo({ ...manualBumpInfo, [field]: value });
@@ -163,7 +159,6 @@ const BumpDetails = () => {
 
   useEffect(() => {
     if (isUpdateSuccess) {
-      queryClient.invalidateQueries("allBumps");
       setManualBumpInfo(updateData?.data);
     }
   }, [isUpdateSuccess]);

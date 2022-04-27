@@ -11,7 +11,18 @@ const manualBumpSchema = new mongoose.Schema(
     multiVariants: Boolean,
     selectedVariants: Array,
     conditions: Array,
-    enable: Boolean,
+    enable: {
+      type: Boolean,
+      default: false,
+    },
+    click: {
+      type: Number,
+      default: 0,
+    },
+    views: {
+      type: Number,
+      default: 0,
+    },
     orderBump: {
       type: String,
       ref: "OrderBump",

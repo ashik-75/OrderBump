@@ -1,11 +1,15 @@
 import expressAsyncHandler from "express-async-handler";
 import mongoose from "mongoose";
+import connectDB from "../Database/connectDb.js";
 import returnSessionData from "../index.js";
 import OrderBump from "../models/OrderBump.js";
 
 // TODO : Get Single Merchant (test done)
 const getSingleOrderBump = expressAsyncHandler(async (req, res) => {
-  const db = await mongoose.connect(process.env.MONGO_URI);
+  const readyState = mongoose.connection.readyState;
+
+  if (!readyState) connectDB();
+
   const { shop } = await returnSessionData(req, res);
 
   const singleOrderBump = await OrderBump.findOne({
@@ -23,16 +27,16 @@ const getSingleOrderBump = expressAsyncHandler(async (req, res) => {
     .sort("-createdAt");
 
   res.send(singleOrderBump);
-
-  await db.disconnect();
 });
 
 // * Add Sidebar Location into orderBump (test done)
 
 const addLocationToOrderBump = expressAsyncHandler(async (req, res) => {
-  const { shop } = await returnSessionData(req, res);
+  const readyState = mongoose.connection.readyState;
 
-  const db = await mongoose.connect(process.env.MONGO_URI);
+  if (!readyState) connectDB();
+
+  const { shop } = await returnSessionData(req, res);
 
   const orderBump = await OrderBump.findOneAndUpdate(
     { shop },
@@ -41,7 +45,6 @@ const addLocationToOrderBump = expressAsyncHandler(async (req, res) => {
   );
 
   res.send(orderBump);
-  await db.disconnect;
 });
 
 export { getSingleOrderBump, addLocationToOrderBump };

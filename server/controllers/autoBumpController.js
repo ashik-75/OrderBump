@@ -1,12 +1,16 @@
 import expressAsyncHandler from "express-async-handler";
 import mongoose from "mongoose";
+import connectDB from "../Database/connectDb.js";
 import returnSessionData from "../index.js";
 import AutoBump from "../models/AutoBump.js";
 import OrderBump from "../models/OrderBump.js";
 
 // TODO: Add Auto Bump(test done)
 const addAutoBump = expressAsyncHandler(async (req, res) => {
-  const db = await mongoose.connect(process.env.MONGO_URI);
+  const readyState = mongoose.connection.readyState;
+
+  if (!readyState) connectDB();
+
   const { shop } = await returnSessionData(req, res);
 
   const autoBump = await AutoBump.create({
@@ -27,13 +31,16 @@ const addAutoBump = expressAsyncHandler(async (req, res) => {
   );
 
   res.send(autoBump);
-  await db.disconnect();
 });
 
 // TODO: Update auto Bump (test done)
 const updateAutoBump = expressAsyncHandler(async (req, res) => {
+  const readyState = mongoose.connection.readyState;
+
+  if (!readyState) connectDB();
+
   const { shop } = await returnSessionData(req, res);
-  const db = await mongoose.connect(process.env.MONGO_URI);
+
   const autoBumpId = req.params.autoBumpId;
 
   const updateBump = await AutoBump.findOneAndUpdate(
@@ -47,7 +54,6 @@ const updateAutoBump = expressAsyncHandler(async (req, res) => {
     }
   );
   res.send(updateBump);
-  await db.disconnect();
 });
 
 export { addAutoBump, updateAutoBump };

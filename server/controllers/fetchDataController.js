@@ -1,11 +1,15 @@
 import expressAsyncHandler from "express-async-handler";
 import mongoose from "mongoose";
+import connectDB from "../Database/connectDb.js";
 import MerchantData from "../models/MerchantData.js";
 import OrderBump from "../models/OrderBump.js";
 
 export const getOrderBumpInfo = expressAsyncHandler(async (req, res) => {
+  const readyState = mongoose.connection.readyState;
+
+  if (!readyState) connectDB();
+
   const { shop } = req.query;
-  const db = await mongoose.connect(process.env.MONGO_URI);
 
   const response = await OrderBump.findOne({
     shop,
@@ -22,6 +26,4 @@ export const getOrderBumpInfo = expressAsyncHandler(async (req, res) => {
     merchantDataResponse?.limit - merchantDataResponse?.usedOrders > 0;
 
   res.json(response);
-
-  await db.disconnect();
 });
